@@ -16,9 +16,10 @@ main { max-width:520px; margin:0 auto; padding:20px 16px 40px; }
 h1 { font-size:21px; color:var(--blue); margin:12px 0 4px; }
 .hero p { margin:2px 0; color:var(--sub); font-size:15px; }
 label.q { display:block; font-weight:700; margin-bottom:8px; font-size:16px; }
-input[type=text] { width:100%; font-size:17px; padding:12px; border:1px solid var(--line); border-radius:10px; }
+input[type=text], input[type=email] { width:100%; font-size:17px; padding:12px; border:1px solid var(--line); border-radius:10px; }
 .opts label { display:flex; align-items:center; gap:10px; padding:11px 12px; border:1px solid var(--line); border-radius:10px; margin-bottom:8px; font-size:16px; cursor:pointer; }
 .opts input { width:20px; height:20px; accent-color:var(--blue); }
+.opt { font-weight:400; color:var(--sub); font-size:14px; }
 .tz { font-size:14px; color:var(--sub); margin-top:4px; }
 button { width:100%; font-size:18px; font-weight:700; padding:14px; border:0; border-radius:12px; background:var(--blue); color:#fff; cursor:pointer; }
 button:disabled { opacity:.5; }
@@ -41,6 +42,11 @@ button:disabled { opacity:.5; }
       <input type="text" id="name" autocomplete="name" placeholder="예: 홍길동">
     </div>
     <div class="card">
+      <label class="q" for="email">이메일 <span class="opt">(선택)</span></label>
+      <input type="email" id="email" autocomplete="email" inputmode="email" placeholder="예: name@gmail.com">
+      <p class="tz">다녀와서 아웃리치 소식을 이메일로 보내 드리겠습니다.</p>
+    </div>
+    <div class="card">
       <label class="q">어느 시간대에 기도해 주실 수 있나요?</label>
       <div class="opts" id="opts"></div>
       <p class="tz" id="tz"></p>
@@ -55,7 +61,7 @@ button:disabled { opacity:.5; }
 </main>
 <script>
 const FORM = "https://docs.google.com/forms/d/e/1FAIpQLSfj5Tl2aPW8UXb2naHZmgT7yMVHGd1ziocm5OEhY6yw4eXCmg/formResponse";
-const E_NAME = "entry.887097103", E_TIME = "entry.911906886", E_TZ = "entry.1579871928";
+const E_NAME = "entry.887097103", E_EMAIL = "entry.1594834652", E_TIME = "entry.911906886", E_TZ = "entry.1579871928";
 const SLOTS = ["아침 (6~9시)", "오전 (9~12시)", "점심 (12~2시)", "오후 (2~6시)", "저녁 (6~9시)", "밤 (9시 이후)"];
 const opts = document.getElementById("opts");
 SLOTS.forEach(s => {
@@ -76,11 +82,15 @@ document.getElementById("f").addEventListener("submit", async ev => {
   const picked = [...opts.querySelectorAll("input:checked")].map(i => i.value);
   const err = document.getElementById("err");
   if (!name) { err.textContent = "성함을 적어 주세요."; return; }
+  const em = document.getElementById("email").value.trim();
+  if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { err.textContent = "이메일 주소를 다시 확인해 주세요."; return; }
   if (!picked.length) { err.textContent = "시간대를 하나 이상 골라 주세요."; return; }
   err.textContent = "";
   const btn = document.getElementById("btn"); btn.disabled = true; btn.textContent = "보내는 중...";
   const body = new URLSearchParams();
   body.append(E_NAME, name);
+  const email = document.getElementById("email").value.trim();
+  if (email) body.append(E_EMAIL, email);
   picked.forEach(p => body.append(E_TIME, p));
   body.append(E_TZ, `${tz} (${utc})`);
   try {
