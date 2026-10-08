@@ -42,7 +42,7 @@ button:disabled { opacity:.5; }
       <input type="text" id="name" autocomplete="name" placeholder="예: 홍길동">
     </div>
     <div class="card">
-      <label class="q" for="email">이메일 <span class="opt">(선택)</span></label>
+      <label class="q" for="email">이메일</label>
       <input type="email" id="email" autocomplete="email" inputmode="email" placeholder="예: name@gmail.com">
       <p class="tz">다녀와서 아웃리치 소식을 이메일로 보내 드리겠습니다.</p>
     </div>
@@ -75,7 +75,7 @@ const off = -new Date().getTimezoneOffset();
 const utc = "UTC" + (off >= 0 ? "+" : "-") + String(Math.floor(Math.abs(off) / 60)).padStart(2, "0") + ":" + String(Math.abs(off) % 60).padStart(2, "0");
 const NAMES = { "Asia/Seoul": "한국", "America/Los_Angeles": "미국 서부", "America/Denver": "미국 산악", "America/Phoenix": "미국 애리조나", "America/Chicago": "미국 중부", "America/New_York": "미국 동부" };
 const place = NAMES[tz] || tz;
-document.getElementById("tz").textContent = `지금 계신 곳(${place}) 시간 기준으로 골라 주세요.`;
+document.getElementById("tz").textContent = "지금 계신 곳 시간 기준으로 골라 주세요.";
 document.getElementById("f").addEventListener("submit", async ev => {
   ev.preventDefault();
   const name = document.getElementById("name").value.trim();
@@ -83,14 +83,15 @@ document.getElementById("f").addEventListener("submit", async ev => {
   const err = document.getElementById("err");
   if (!name) { err.textContent = "성함을 적어 주세요."; return; }
   const em = document.getElementById("email").value.trim();
-  if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { err.textContent = "이메일 주소를 다시 확인해 주세요."; return; }
+  if (!em) { err.textContent = "이메일을 적어 주세요."; return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { err.textContent = "이메일 주소를 다시 확인해 주세요."; return; }
   if (!picked.length) { err.textContent = "시간대를 하나 이상 골라 주세요."; return; }
   err.textContent = "";
   const btn = document.getElementById("btn"); btn.disabled = true; btn.textContent = "보내는 중...";
   const body = new URLSearchParams();
   body.append(E_NAME, name);
   const email = document.getElementById("email").value.trim();
-  if (email) body.append(E_EMAIL, email);
+  body.append(E_EMAIL, email);
   picked.forEach(p => body.append(E_TIME, p));
   body.append(E_TZ, `${tz} (${utc})`);
   try {
